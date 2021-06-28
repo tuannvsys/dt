@@ -7,7 +7,6 @@
 <script>
 import { defineComponent } from 'vue';
 import DateCustom from "../components/date.vue"
-// import S from "../components/s.vue"
 
 export default defineComponent({
   name: 'PageIndex',
@@ -16,7 +15,7 @@ export default defineComponent({
   },
   data() {
     return {
-      listActiveDateInit: ["26-6-2021", "28-6-2021"]
+      listActiveDateInit: ["26-6-2021", "28-6-2021", "1-8-2021"]
     }
   }
 })

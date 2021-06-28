@@ -1,6 +1,7 @@
 <template>
     <h2 style="text-align: center;"> Date Custom</h2>
     <span> List seleect date: </span>
+    
     <span style="" v-for="item in selectDate" :key="item" >
          {{ item }} / 
     </span>
@@ -26,12 +27,16 @@
                 :id="item.day + '_' + item.month + '_' + item.year"
             >
                 <span 
-                :class="{'active': item.active }" 
+                :class="{'active': item.active }"
+                @mouseover="setBlurDate(item.day, item.month, item.year)"
                 @click="clickDateAction(item.day, item.month, item.year)">
                     {{ item.day }}
                 </span>
             </div>
-        </div>  
+        </div>
+        <!-- <h5>
+            {{ blurDate }}
+        </h5> -->
     </div>
 </template>
 
@@ -57,7 +62,8 @@ export default defineComponent({
             dateNow: "",
             monthNow: "",
             yearNow: "",
-            dateMonth: ""
+            dateMonth: "",
+            blurDate: ''
         }
     },
     created () {
@@ -167,6 +173,9 @@ export default defineComponent({
         }, 500)
     },
     methods: {
+        setBlurDate (date, month, year) {
+            this.blurDate = `${month}-${year}`
+        },
         handleScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
             const { day, month, year } = this.nextDateState;
             const dayB = this.beforeDateState.day
