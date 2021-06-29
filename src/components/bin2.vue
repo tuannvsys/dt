@@ -8,7 +8,7 @@
 
     <div class="main">
         <!-- <div class="headInfo">
-            <span class="headInfoYear"> {{ yearNow }} - {{ dateMonthStrNow }} </span>
+            <span class="headInfoYear"> {{ yearNow }} - {{ dateMonth }} </span>
             <span class="headInfoMonthDay"> {{ blurDate }} </span>
         </div>
         <br /> -->
@@ -18,7 +18,7 @@
                 <span> Điểm gửi </span>
             </div>
             <div class="controlHeaderBtn">
-                <span> {{ blurMonth }} </span>
+                <span> May </span>
                 <span> &lt;	 </span>
                 <span> {{ blurDate }} </span>
                 <span> &gt; </span>
@@ -26,13 +26,13 @@
         </div>
         <div style="clear: both"></div>
         <div class="calHeader">
+            <div class="itemHeader"> <span> Sun </span> </div>
             <div class="itemHeader"> <span> Mon </span> </div>
             <div class="itemHeader"> <span> Tue </span> </div>
             <div class="itemHeader"> <span> Wed </span> </div>
             <div class="itemHeader"> <span> Thu </span> </div>
             <div class="itemHeader"> <span> Fri </span> </div>
             <div class="itemHeader"> <span> Sat </span> </div>
-             <div class="itemHeader"> <span> Sun </span> </div>
         </div>
 
         <div id="boxId" class="box" v-on:scroll="handleScroll" ref="boxRef"> 
@@ -76,9 +76,8 @@ export default defineComponent({
             dateNow: "",
             monthNow: "",
             yearNow: "",
-            dateMonthStrNow: "",
-            blurDate: "",
-            blurMonth: ""
+            dateMonth: "",
+            blurDate: ""
         }
     },
     created () {
@@ -104,8 +103,7 @@ export default defineComponent({
         this.dateNow = date
         this.monthNow = month
         this.yearNow = year
-        this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
-        this.blurMonth = this.getDateMonth(date, month, year, false)
+        this.dateMonth = this.getDateMonth(date, month, year)
 
         if (this._date) date = Number(this._date)
         if (this._month) month = Number(this._month)
@@ -126,7 +124,7 @@ export default defineComponent({
         firstDayOnMonth.setMonth(month - 1)
         firstDayOnMonth.setFullYear(year)
 
-        const offDayHead = firstDayOnMonth.getDay() - 1
+        const offDayHead = firstDayOnMonth.getDay()
 
         const numDayThisMonth = this.numDaysInMonth(month, year)
 
@@ -196,8 +194,6 @@ export default defineComponent({
     methods: {
         setBlurDate (date, month, year) {
             this.blurDate = `${month}-${year}`
-            this.blurMonth = this.getDateMonth(date, month, year, false)
-            console.log(">>>>>>>>>>>>>>>>>>>>>> VLIURRRR LOGGG::", this.blurMonth)
         },
         handleScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
             const { day, month, year } = this.nextDateState;
@@ -231,6 +227,11 @@ export default defineComponent({
     
         clickDateAction (day, month, year) {
             const selectDateFormat = `${day}-${month}-${year}`;
+
+            // console.log(">>>>>>>>> XXXX day:", selectDateFormat)
+            // console.log(">>>>>>>>> selectDate:", this.selectDate)
+            // console.log(">>>>>>>>> XXXX listDate:", this.listDate)
+
             if (!this.selectDate) this.selectDate = []
             const countDateExit = this.selectDate.indexOf(selectDateFormat);
 
@@ -436,10 +437,9 @@ export default defineComponent({
             return listBeforeDay;
         },
 
-        getDateMonth (date, month, year, getFull = true) {
+        getDateMonth (date, month, year) {
             const dateName = this.getNameDate(this.getNumDayOnWeek(date, month, year))
-            const monthName = this.getNameMonth(date, month, year)
-            if (!getFull) return monthName
+            const monthName = this.getNameMonth()
             return `${dateName}, ${monthName} ${date}`
         },
         getNumDayOnWeek (date, month, year) {
@@ -447,18 +447,15 @@ export default defineComponent({
             _date.setDate(date)
             _date.setMonth(month - 1)
             _date.setFullYear(year)
-            return _date.getDay() - 1
+            return _date.getDay()
         },
         getNameDate (dateOnWeek) {
             var d = new Date();
             return d.toString().split(' ')[0];
         },
-        getNameMonth (date , month, year) {
+        getNameMonth () {
             const monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const d = new Date();
-             d.setDate(date)
-            d.setMonth(month - 1)
-            d.setFullYear(year)
             return monthNames[d.getMonth()]
         },
         getActiveMonth () {
@@ -530,7 +527,6 @@ export default defineComponent({
         width: 50px;
         height: 33px;
         float: left;
-        display: block;
     }
 
     .item span:hover {

@@ -7,50 +7,37 @@
     </span>
 
     <div class="main">
-        <!-- <div class="headInfo">
-            <span class="headInfoYear"> {{ yearNow }} - {{ dateMonthStrNow }} </span>
+        <div class="headInfo">
+            <span class="headInfoYear"> {{ yearNow }} - {{ dateMonth }} </span>
+            <!-- <span class="headInfoMonthDay"> {{ dateMonth }} </span> -->
             <span class="headInfoMonthDay"> {{ blurDate }} </span>
         </div>
-        <br /> -->
-
-        <div class="controlHeader">
-            <div class="controlHeaderText">
-                <span> Điểm gửi </span>
-            </div>
-            <div class="controlHeaderBtn">
-                <span> {{ blurMonth }} </span>
-                <span> &lt;	 </span>
-                <span> {{ blurDate }} </span>
-                <span> &gt; </span>
-            </div>
-        </div>
-        <div style="clear: both"></div>
         <div class="calHeader">
-            <div class="itemHeader"> <span> Mon </span> </div>
-            <div class="itemHeader"> <span> Tue </span> </div>
-            <div class="itemHeader"> <span> Wed </span> </div>
-            <div class="itemHeader"> <span> Thu </span> </div>
-            <div class="itemHeader"> <span> Fri </span> </div>
-            <div class="itemHeader"> <span> Sat </span> </div>
-             <div class="itemHeader"> <span> Sun </span> </div>
+            <div class="itemHeader"> <span> Su </span> </div>
+            <div class="itemHeader"> <span> Mo </span> </div>
+            <div class="itemHeader"> <span> Tu </span> </div>
+            <div class="itemHeader"> <span> We </span> </div>
+            <div class="itemHeader"> <span> Th </span> </div>
+            <div class="itemHeader"> <span> Fr </span> </div>
+            <div class="itemHeader"> <span> Sa </span> </div>
         </div>
 
         <div id="boxId" class="box" v-on:scroll="handleScroll" ref="boxRef"> 
             <div 
-                v-for="item in listDate" :key="item.day" 
+                v-for="item in listDate" :key="item.day" class="item" 
                 :id="item.day + '_' + item.month + '_' + item.year"
-                :class="'item ' + item.activeMonthClass"
-                @mouseover="setBlurDate(item.day, item.month, item.year)"
             >
                 <span 
                 :class="{'active': item.active }"
+                @mouseover="setBlurDate(item.day, item.month, item.year)"
                 @click="clickDateAction(item.day, item.month, item.year)">
                     {{ item.day }}
                 </span>
             </div>
         </div>
-
-        <br /><br /><br />
+        <!-- <h5>
+            {{ blurDate }}
+        </h5> -->
     </div>
 </template>
 
@@ -76,9 +63,8 @@ export default defineComponent({
             dateNow: "",
             monthNow: "",
             yearNow: "",
-            dateMonthStrNow: "",
-            blurDate: "",
-            blurMonth: ""
+            dateMonth: "",
+            blurDate: ''
         }
     },
     created () {
@@ -104,8 +90,7 @@ export default defineComponent({
         this.dateNow = date
         this.monthNow = month
         this.yearNow = year
-        this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
-        this.blurMonth = this.getDateMonth(date, month, year, false)
+        this.dateMonth = this.getDateMonth(date, month, year)
 
         if (this._date) date = Number(this._date)
         if (this._month) month = Number(this._month)
@@ -117,8 +102,7 @@ export default defineComponent({
             day: date,
             month: month,
             year: year,
-            active: true,
-            activeMonthClass: this.calClassActiveMonth(month, year)
+            active: true
         }]
 
         var firstDayOnMonth = new Date()
@@ -126,7 +110,7 @@ export default defineComponent({
         firstDayOnMonth.setMonth(month - 1)
         firstDayOnMonth.setFullYear(year)
 
-        const offDayHead = firstDayOnMonth.getDay() - 1
+        const offDayHead = firstDayOnMonth.getDay()
 
         const numDayThisMonth = this.numDaysInMonth(month, year)
 
@@ -140,8 +124,7 @@ export default defineComponent({
                 day: ii,
                 month,
                 year,
-                active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? true : false,
-                activeMonthClass: this.calClassActiveMonth(month, year)
+                active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? true : false 
             })
         }
 
@@ -181,8 +164,7 @@ export default defineComponent({
                 day: fullDayListBox[i-1]["day"],
                 month: fullDayListBox[i-1]["month"],
                 year: fullDayListBox[i-1]["year"],
-                active: (isActiveClass > -1) ? true : false,
-                activeMonthClass: this.calClassActiveMonth(fullDayListBox[i-1]["month"], fullDayListBox[i-1]["year"])
+                active: (isActiveClass > -1) ? true : false
             })
         }
         this.listDate = time;
@@ -190,14 +172,12 @@ export default defineComponent({
         console.log("==========================================================================================")
         setTimeout(function() {
             var div = document.getElementById("boxId");
-            div.scrollTop = 70 
-        }, 10)
+            div.scrollTop = 80
+        }, 500)
     },
     methods: {
         setBlurDate (date, month, year) {
             this.blurDate = `${month}-${year}`
-            this.blurMonth = this.getDateMonth(date, month, year, false)
-            console.log(">>>>>>>>>>>>>>>>>>>>>> VLIURRRR LOGGG::", this.blurMonth)
         },
         handleScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
             const { day, month, year } = this.nextDateState;
@@ -231,6 +211,11 @@ export default defineComponent({
     
         clickDateAction (day, month, year) {
             const selectDateFormat = `${day}-${month}-${year}`;
+
+            // console.log(">>>>>>>>> XXXX day:", selectDateFormat)
+            // console.log(">>>>>>>>> selectDate:", this.selectDate)
+            // console.log(">>>>>>>>> XXXX listDate:", this.listDate)
+
             if (!this.selectDate) this.selectDate = []
             const countDateExit = this.selectDate.indexOf(selectDateFormat);
 
@@ -290,8 +275,7 @@ export default defineComponent({
                     day: i,
                     month: itemMonth,
                     year: itemYear,
-                    active: (this.selectDate.indexOf(`${i}-${itemMonth}-${itemYear}`) >= 0 ) ? true : false ,
-                    activeMonthClass: this.calClassActiveMonth(itemMonth, itemYear)
+                    active: (this.selectDate.indexOf(`${i}-${itemMonth}-${itemYear}`) >= 0 ) ? true : false 
                 })
             }
             return list
@@ -307,8 +291,7 @@ export default defineComponent({
                     day: i,
                     month: itemMonth,
                     year: itemYear,
-                    active: (this.selectDate.indexOf(`${i}-${itemMonth}-${itemYear}`) >= 0 ) ? true : false,
-                     activeMonthClass: this.calClassActiveMonth(itemMonth, itemYear)
+                    active: (this.selectDate.indexOf(`${i}-${itemMonth}-${itemYear}`) >= 0 ) ? true : false 
                 })
             }
             return list
@@ -339,8 +322,7 @@ export default defineComponent({
                         day: ii,
                         month,
                         year,
-                        active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? true : false,
-                         activeMonthClass: this.calClassActiveMonth(month, year)
+                        active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? true : false 
                     })
                 }
             } else {
@@ -349,8 +331,7 @@ export default defineComponent({
                         day: i,
                         month,
                         year,
-                        active: (this.selectDate.indexOf(`${i}-${month}-${year}`) >= 0 ) ? true : false,
-                         activeMonthClass: this.calClassActiveMonth(month, year)
+                        active: (this.selectDate.indexOf(`${i}-${month}-${year}`) >= 0 ) ? true : false  
                     })
                 }
                 for (let ii = 1; ii <= nextTimeDay; ii++) {
@@ -360,8 +341,7 @@ export default defineComponent({
                         day: ii,
                         month: itemMonth,
                         year: itemYear,
-                        active: (this.selectDate.indexOf(`${ii}-${itemMonth}-${itemYear}`) >= 0 ) ? true : false,
-                         activeMonthClass: this.calClassActiveMonth(itemMonth, itemYear)
+                        active: (this.selectDate.indexOf(`${ii}-${itemMonth}-${itemYear}`) >= 0 ) ? true : false 
                     })
                 }
             }
@@ -406,8 +386,7 @@ export default defineComponent({
                         day: ii,
                         month,
                         year,
-                        active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? true : false,
-                         activeMonthClass: this.calClassActiveMonth(month, year) 
+                        active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? true : false 
                     })
                 }
             } else {
@@ -418,8 +397,7 @@ export default defineComponent({
                         day: i,
                         month: itemMonth,
                         year: itemYear,
-                        active: (this.selectDate.indexOf(`${i}-${itemMonth}-${itemYear}`) >= 0 ) ? true : false,
-                         activeMonthClass: this.calClassActiveMonth(itemMonth, itemYear) 
+                        active: (this.selectDate.indexOf(`${i}-${itemMonth}-${itemYear}`) >= 0 ) ? true : false 
                     })
                 }
                 for (let ii = 1; ii < day; ii++) {
@@ -427,8 +405,7 @@ export default defineComponent({
                         day: ii,
                         month,
                         year,
-                        active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? true : false,
-                        activeMonthClass: this.calClassActiveMonth(month, year) 
+                        active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? true : false 
                     })
                 }
             }
@@ -436,10 +413,9 @@ export default defineComponent({
             return listBeforeDay;
         },
 
-        getDateMonth (date, month, year, getFull = true) {
+        getDateMonth (date, month, year) {
             const dateName = this.getNameDate(this.getNumDayOnWeek(date, month, year))
-            const monthName = this.getNameMonth(date, month, year)
-            if (!getFull) return monthName
+            const monthName = this.getNameMonth()
             return `${dateName}, ${monthName} ${date}`
         },
         getNumDayOnWeek (date, month, year) {
@@ -447,35 +423,24 @@ export default defineComponent({
             _date.setDate(date)
             _date.setMonth(month - 1)
             _date.setFullYear(year)
-            return _date.getDay() - 1
+            return _date.getDay()
         },
         getNameDate (dateOnWeek) {
             var d = new Date();
             return d.toString().split(' ')[0];
         },
-        getNameMonth (date , month, year) {
+        getNameMonth () {
             const monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const d = new Date();
-             d.setDate(date)
-            d.setMonth(month - 1)
-            d.setFullYear(year)
             return monthNames[d.getMonth()]
-        },
-        getActiveMonth () {
-            return this.blurDate.split("-")[0]
-        },
-        calClassActiveMonth (month, year) {
-            const monthBlur = this.blurDate;
-            const monthYear = `${month}-${year}`;
-            return (monthYear == monthBlur) ? "activeMonth" : ""
         }
     }
 })
 </script>
 <style scoped>
     .main {
-        max-width: 350px;
-        height: 350px;
+        width: 280px;
+        height: 280px;
         display: block;
         margin: auto;
         box-sizing: border-box;
@@ -483,7 +448,7 @@ export default defineComponent({
 
     .headInfo {
         width: 100%;
-        height: 100px;
+        height: 80px;
         background: #1867c0;
         padding: 10px;
     }
@@ -502,15 +467,16 @@ export default defineComponent({
     .calHeader {
         display: block;
         width: 100%;
-        height: 50px;
+        height: 40px;
+        background: #f7f7f7;
         box-sizing: border-box;
-        border-top: 2px solid #4d99b5;
+        
     }
     .itemHeader {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
         display: inline-flex;
-        line-height: 50px;
+        line-height: 40px;
         text-align: center;
         margin: auto;
     }
@@ -522,42 +488,26 @@ export default defineComponent({
         width: 100%;
         height: 50px;
         display: block;
-        color: #559eb8;
-        font-weight: 700;
-    }
-
-    .item {
-        width: 50px;
-        height: 33px;
-        float: left;
-        display: block;
-    }
-
-    .item span:hover {
-        background: #f1ecec;
-        cursor: pointer;
     }
 
     .item span {
         margin: auto;
         text-align: center;
-        line-height: 30px;
-        width: 45px;
-        height: 30px;
+        line-height: 35px;
+        /* background: yellow; */
+        width: 35px;
+        height: 35px;
         display: block;
+        border-radius: 50%;
+        /* border: 1px solid red; */
         font-weight: 500;
         font-size: 13px;
-        text-align: end;
-        padding: 5px 4px;
-        border: 1px solid #d9dcde;
-        color: #71aec4;
     }
 
     .box {
-        /* width: 280px;
-        height: 240px; */
-        width: 350px;
-        height: 210px;
+        width: 280px;
+        height: 240px;
+        /* background: #efefe9; */
         overflow-y: scroll;
     }
 
@@ -572,64 +522,28 @@ export default defineComponent({
         scrollbar-width: none;  /* Firefox */
     }
 
-    
-
-    .active {
-        background: #7586bd !important;
-        color: #fff !important;
-    }
-
-    .activeMonth {
-        /* background: #eae5e5; */
-        /* border: 1px solid red; */
-    }
-
-
-
-    /*  */
-    .controlHeader {
-        /* border-top: 2px solid #4d99b5; */
-    }
-
-    .controlHeaderText {
-        display: block;
+    .item {
+        width: 40px;
+        height: 40px;
         float: left;
-        width: 40%;
-        height: 50px;
-        line-height: 50px;
-        /* background: yellow; */
-    }
-    .controlHeaderText span {
-        font-size: 17px;
-        font-weight: 700;
-        color: #4c7c9f;
-        padding-left: 2px;
+        /* border-radius: 50%; */
     }
 
-    .controlHeaderBtn {
-        display: block;
-        float: left;
-        width: 60%;
-        height: 50px;
-        line-height: 50px;
-        /* background: pink; */
-        text-align: right;
-        padding-right: 4px;
-    }
-
-    .controlHeaderBtn span {
-        font-size: 17px;
-        font-weight: 700;
-        color: #4c7c9f;
-        padding-left: 2px;
-        text-align: right;
-    }
-
-    .controlHeaderBtn span:nth-child(2), .controlHeaderBtn span:nth-child(4) {
+    .item span:hover {
+        background: #c1c1b8;
         cursor: pointer;
     }
 
-    
+    .active {
+        background: #005caf !important;
+        color: #fff;
+    }
+
+    .activeMonth {
+        background: #eae5e5;
+    }
+
+    /* #dcdcd2 => list day of active month */
 </style>
 
 
