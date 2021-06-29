@@ -76,7 +76,6 @@ export default defineComponent({
             dateNow: "",
             monthNow: "",
             yearNow: "",
-
             dateMonthStrNow: "",
             blurDate: "",
             blurMonth: "",
@@ -93,128 +92,106 @@ export default defineComponent({
 
     mounted() {
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Mounted")
+        if (this._activeDateList && this._activeDateList.length > 0) this.selectDate = [...this.selectDate, ...this._activeDateList]
         
-        this.initApp()
+        const now = new Date()
+        this.year = now.getFullYear()
+        this.month = now.getMonth() + 1
+        this.date = now.getDate()
+
+        var date = this.date
+        var month = this.month
+        var year = this.year
+
+        this.dateNow = date
+        this.monthNow = month
+        this.yearNow = year
+        this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
+        this.blurMonth = this.getDateMonth(date, month, year, false)
+
+        if (this._date) date = Number(this._date)
+        if (this._month) month = Number(this._month)
+        if (this._year) year = Number(this._year)
+
+        this.blurDate = `${month}-${year}`
+        
+        this.listDate = [{
+            day: date,
+            month: month,
+            year: year,
+            active: true,
+            activeMonthClass: this.calClassActiveMonth(month, year)
+        }]
+
+        var firstDayOnMonth = new Date()
+        firstDayOnMonth.setDate(1)
+        firstDayOnMonth.setMonth(month - 1)
+        firstDayOnMonth.setFullYear(year)
+
+        const offDayHead = firstDayOnMonth.getDay() - 1
+
+        const numDayThisMonth = this.numDaysInMonth(month, year)
+
+        var timeOffHeadList = []
+        var timeMainList    = []
+        var timeNextList    = []
+
+        // Cal List Day Main
+        for (let ii = 1; ii <= numDayThisMonth; ii++) {
+            timeMainList.push({
+                day: ii,
+                month,
+                year,
+                active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? 'active' : '',
+                activeMonthClass: this.calClassActiveMonth(month, year)
+            })
+        }
+
+        // Cal List Day Head
+        const [monthHeadListBefore, yearHeadListBefore] = this.getBeforeMonthYear(month, year)
+        timeOffHeadList = this.getListDayEndOfMonth(offDayHead, monthHeadListBefore, yearHeadListBefore )
+        // Set beforeDateState
+        this.beforeDateState = timeOffHeadList[0]
+
+        // Cal List Day End
+        // const [monthNextListBefore, yearNextListBefore] = getNextMonthYear(month, year)
+
+        const numCellEndList = 42 - Number(timeMainList.length) - Number(timeOffHeadList.length) + 14 // 14 is 2 line add before for top scroll
+        timeNextList = this.getListDayStartOfMonth(numCellEndList, month, year)
+
+        // Set State nextDateState
+        this.nextDateState = timeNextList.slice(-1)[0] 
+        const fullDayListBox = [...timeOffHeadList , ...timeMainList, ...timeNextList]
+
+        this.listDate = fullDayListBox;
+        const time = []; // Array bin 
+        for (let i = 1; i <= this.listDate.length; i++) {
+            const itemKeyBind = `${fullDayListBox[i-1]["day"]}-${fullDayListBox[i-1]["month"]}-${fullDayListBox[i-1]["year"]}`
+            const isActiveClass = this.selectDate.indexOf(itemKeyBind);
+            time.push({
+                day: fullDayListBox[i-1]["day"],
+                month: fullDayListBox[i-1]["month"],
+                year: fullDayListBox[i-1]["year"],
+                active: (isActiveClass > -1) ? 'active' : '',
+                activeMonthClass: this.calClassActiveMonth(fullDayListBox[i-1]["month"], fullDayListBox[i-1]["year"])
+            })
+        }
+        this.listDate = time;
+
+        console.log("==========================================================================================")
+        setTimeout(function() {
+            var div = document.getElementById("boxId");
+            div.scrollTop = 66
+        }, 10)
     },
     methods: {
         clickNextMonth () {
+            this.date = 10
+            this.month = 10
+            this.year = 2023;
+
            
-        },
-        
-        initApp (option) {
-            console.log({
-                option
-            });
-
-            
-
-            var date, month, year;
-            if (option && option.month) {
-                date = option.date
-                month = option.month
-                year = option.year
-
-                this.dateNow = date
-                this.monthNow = month
-                this.yearNow = year
-                this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
-                this.blurMonth = this.getDateMonth(date, month, year, false)
-            } else {
-
-                if (this._activeDateList && this._activeDateList.length > 0) this.selectDate = [...this.selectDate, ...this._activeDateList]
-
-                const now = new Date()
-                this.year = now.getFullYear()
-                this.month = now.getMonth() + 1
-                this.date = now.getDate()
-
-                date = this.date
-                month = this.month
-                year = this.year
-
-                this.dateNow = date
-                this.monthNow = month
-                this.yearNow = year
-                this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
-                this.blurMonth = this.getDateMonth(date, month, year, false)
-
-                if (this._date && this._month && this._year) {
-                    date = Number(this._date)
-                    month = Number(this._month)
-                    year = Number(this._year)
-                }
-            }
-
-            this.blurDate = `${month}-${year}`
-            
-            this.listDate = [{
-                day: date,
-                month: month,
-                year: year,
-                active: true,
-                activeMonthClass: this.calClassActiveMonth(month, year)
-            }]
-
-            var firstDayOnMonth = new Date()
-            firstDayOnMonth.setDate(1)
-            firstDayOnMonth.setMonth(month - 1)
-            firstDayOnMonth.setFullYear(year)
-
-            const offDayHead = firstDayOnMonth.getDay() - 1
-
-            const numDayThisMonth = this.numDaysInMonth(month, year)
-
-            var timeOffHeadList = []
-            var timeMainList    = []
-            var timeNextList    = []
-
-            // Cal List Day Main
-            for (let ii = 1; ii <= numDayThisMonth; ii++) {
-                timeMainList.push({
-                    day: ii,
-                    month,
-                    year,
-                    active: (this.selectDate.indexOf(`${ii}-${month}-${year}`) >= 0 ) ? 'active' : '',
-                    activeMonthClass: this.calClassActiveMonth(month, year)
-                })
-            }
-
-            // Cal List Day Head
-            const [monthHeadListBefore, yearHeadListBefore] = this.getBeforeMonthYear(month, year)
-            timeOffHeadList = this.getListDayEndOfMonth(offDayHead, monthHeadListBefore, yearHeadListBefore )
-            // Set beforeDateState
-            this.beforeDateState = timeOffHeadList[0]
-
-            // Cal List Day End
-            // const [monthNextListBefore, yearNextListBefore] = getNextMonthYear(month, year)
-
-            const numCellEndList = 42 - Number(timeMainList.length) - Number(timeOffHeadList.length) + 14 // 14 is 2 line add before for top scroll
-            timeNextList = this.getListDayStartOfMonth(numCellEndList, month, year)
-
-            // Set State nextDateState
-            this.nextDateState = timeNextList.slice(-1)[0] 
-            const fullDayListBox = [...timeOffHeadList , ...timeMainList, ...timeNextList]
-
-            this.listDate = fullDayListBox;
-            const time = []; // Array bin 
-            for (let i = 1; i <= this.listDate.length; i++) {
-                const itemKeyBind = `${fullDayListBox[i-1]["day"]}-${fullDayListBox[i-1]["month"]}-${fullDayListBox[i-1]["year"]}`
-                const isActiveClass = this.selectDate.indexOf(itemKeyBind);
-                time.push({
-                    day: fullDayListBox[i-1]["day"],
-                    month: fullDayListBox[i-1]["month"],
-                    year: fullDayListBox[i-1]["year"],
-                    active: (isActiveClass > -1) ? 'active' : '',
-                    activeMonthClass: this.calClassActiveMonth(fullDayListBox[i-1]["month"], fullDayListBox[i-1]["year"])
-                })
-            }
-            this.listDate = time;
-
-            console.log("==========================================================================================")
-            setTimeout(function() {
-                var div = document.getElementById("boxId");
-                div.scrollTop = 66
-            }, 10)
+            console.log(">>>>>> Next ")
         },
         setBlurDate (date, month, year) {
             this.blurDate = `${month}-${year}`
