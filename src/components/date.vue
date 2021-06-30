@@ -19,9 +19,9 @@
             </div>
             <div class="controlHeaderBtn">
                 <span> {{ blurMonth }} </span>
-                <span> &lt;	 </span>
+                <span @click="clickControlMonth('-')"> &lt;	 </span>
                 <span> {{ blurDate }} </span>
-                <span  @click="clickNextMonth()"> &gt; </span>
+                <span  @click="clickControlMonth('+')"> &gt; </span>
             </div>
         </div>
         <div style="clear: both"></div>
@@ -97,22 +97,52 @@ export default defineComponent({
         this.initApp()
     },
     methods: {
-        clickNextMonth () {
-           
+        reset () {
+            Object.assign(this.$data, this.$options.data());
         },
-        
-        initApp (option) {
-            console.log({
-                option
-            });
-
+        async clickControlMonth (type) {
+            console.clear()
+            console.log(">>>>>> Next ")
+            const [mBlur, yBlur] = this.blurDate.split("-")
             
+            const isd =  [...this.selectDate, ...this._activeDateList]
+            await this.reset()
+            // console.log({
+            //     mBlur:  this.getNextMonthYear(Number(mBlur) , Number(yBlur))[0],
+            //     yBlur:  this.getNextMonthYear(Number(mBlur) , Number(yBlur))[1],
+            //     isd
+            // })
 
+            this.blurDate = `${mBlur}-${yBlur}`
+
+            let  monthControl, yearControl
+            if (type == "+") {
+                monthControl = this.getNextMonthYear(Number(mBlur) , Number(yBlur))[0];
+                yearControl = this.getNextMonthYear(Number(mBlur) , Number(yBlur))[1];
+            } else {
+                monthControl = this.getBeforeMonthYear(Number(mBlur) , Number(yBlur))[0];
+                yearControl = this.getBeforeMonthYear(Number(mBlur) , Number(yBlur))[1];
+            }
+            const initData = {
+                date: 1,
+                month: monthControl,
+                year: yearControl,
+                initSelectData: isd
+            }
+            this.initApp(initData)
+        },
+        initApp (option) {
             var date, month, year;
             if (option && option.month) {
+                this.selectDate = [...new Set(option.initSelectData)] 
+
                 date = option.date
                 month = option.month
                 year = option.year
+
+                this.date = date
+                this.month = month
+                this.year = year
 
                 this.dateNow = date
                 this.monthNow = month
@@ -120,9 +150,7 @@ export default defineComponent({
                 this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
                 this.blurMonth = this.getDateMonth(date, month, year, false)
             } else {
-
                 if (this._activeDateList && this._activeDateList.length > 0) this.selectDate = [...this.selectDate, ...this._activeDateList]
-
                 const now = new Date()
                 this.year = now.getFullYear()
                 this.month = now.getMonth() + 1
@@ -135,6 +163,7 @@ export default defineComponent({
                 this.dateNow = date
                 this.monthNow = month
                 this.yearNow = year
+
                 this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
                 this.blurMonth = this.getDateMonth(date, month, year, false)
 
@@ -243,12 +272,14 @@ export default defineComponent({
             const yearB = this.beforeDateState.year
 
             if (scrollTop + clientHeight >= scrollHeight) {
+                console.log(">>>>>>> Scroll Button")
                 const nextDayList = this.getNextDayWithAnyDay(day, month, year);
                 this.listDate = [...this.listDate, ...nextDayList]
                 this.nextDateState = nextDayList.slice(-1)[0]
             }
 
             if (scrollTop == 0) {
+                console.log(">>>>>>> Scroll Topppp..")
                 const beforeDayList = this.getBeforeDayWithAnyDay(dayB, monthB, yearB)
                 this.listDate = [ ...beforeDayList, ...this.listDate]
 
@@ -476,7 +507,7 @@ export default defineComponent({
         getNameMonth (date , month, year) {
             const monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const d = new Date();
-             d.setDate(date)
+            d.setDate(date)
             d.setMonth(month - 1)
             d.setFullYear(year)
             return monthNames[d.getMonth()]
@@ -577,7 +608,7 @@ export default defineComponent({
         /* width: 280px;
         height: 240px; */
         width: 350px;
-        height: 210px;
+        height: 198px;
         overflow-y: scroll;
     }
 

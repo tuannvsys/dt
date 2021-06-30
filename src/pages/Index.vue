@@ -1,5 +1,5 @@
 <template>
-  <DateCustom v-model="year" _date=26 _month=6 _year=2021 :_activeDateList="listActiveDateInit" />
+  <DateCustom v-model="year" _date=30 _month=6 _year=2021 :_activeDateList="listActiveDateInit" />
 </template>
 
 <script>
