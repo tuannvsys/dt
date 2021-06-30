@@ -4,7 +4,7 @@
     <span style="" v-for="item in selectDate" :key="item" >
          {{ item }} / 
     </span>
-    
+
     <div class="main">
         <div class="controlHeader">
             <div class="controlHeaderText">
@@ -196,6 +196,7 @@ export default defineComponent({
             }
         },
         handleScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
+            scrollTop = Math.ceil(scrollTop)
             const { day, month, year } = this.nextDateState;
             const dayBefore = this.beforeDateState.day
             const monthBefore = this.beforeDateState.month
