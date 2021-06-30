@@ -1,5 +1,5 @@
 <template>
-  <DateCustom v-model="year" _date=30 _month=6 _year=2021 :_activeDateList="listActiveDateInit" />
+  <DateCustom date=30 month=6 year=2021 :activeDateList="listActiveDateInit" />
 </template>
 
 <script>
@@ -14,9 +14,6 @@ export default defineComponent({
   data() {
     return {
       listActiveDateInit: ["26-6-2021", "28-6-2021"],
-      // date : "",
-      // month: "",
-      // year: ""
     }
   },
 

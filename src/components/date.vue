@@ -1,24 +1,17 @@
 <template>
     <h2 style="text-align: center;"> Date Custom</h2>
     <span> List seleect date: </span>
-    
     <span style="" v-for="item in selectDate" :key="item" >
          {{ item }} / 
     </span>
-
+    
     <div class="main">
-        <!-- <div class="headInfo">
-            <span class="headInfoYear"> {{ yearNow }} - {{ dateMonthStrNow }} </span>
-            <span class="headInfoMonthDay"> {{ blurDate }} </span>
-        </div>
-        <br /> -->
-
         <div class="controlHeader">
             <div class="controlHeaderText">
                 <span> Điểm gửi </span>
             </div>
             <div class="controlHeaderBtn">
-                <span> {{ blurMonth }} </span>
+                <span> {{ currentMonthName }} </span>
                 <span @click="clickControlMonth('-')"> &lt;	 </span>
                 <span> {{ blurDate }} </span>
                 <span  @click="clickControlMonth('+')"> &gt; </span>
@@ -36,51 +29,37 @@
         </div>
 
         <div id="boxId" class="box" v-on:scroll="handleScroll" ref="boxRef"> 
-            <div 
-                v-for="item in listDate" :key="item.day" :class="'item'"
+            <div v-for="item in listDate" :key="item.day" class="item" 
                 :id="item.day + '_' + item.month + '_' + item.year"
                 @mouseover="setBlurDate(item.day, item.month, item.year)"
             >
                 <span 
-                    v-bind:class=" item.active + ' ' + item.activeMonthClass"
+                    v-bind:class="item.active + ' ' + item.activeMonthClass"
                     @click="clickDateAction(item.day, item.month, item.year)"
                 >
                     {{ item.day }}
                 </span>
             </div>
         </div>
-
-        <br /><br /><br />
     </div>
 </template>
 
 <script>
 import { defineComponent, ref } from 'vue'
+const NUM_DATE_FETCH = 14
 
 export default defineComponent({
     name: 'DateCustom',
-    props: ["_date", "_month", "_year", "_activeDateList"],
+    props: ["date", "month", "year", "activeDateList"],
     data() {
         return {
-            year: "",
-            month: "",
-            date: "",
             listDate: [], // List Date For Render HTML
             selectDate: [], // List Date Selected 
-
-            currentMonth: "",
-            currentYear: "",
             beforeDateState: "",
             nextDateState: "",
 
-            dateNow: "",
-            monthNow: "",
-            yearNow: "",
-
-            dateMonthStrNow: "",
-            blurDate: "",
-            blurMonth: "",
-            
+            blurDate: "", // 6-2021
+            currentMonthName: "", // July
             checkBlurChangeMonth: "" // Bin Var Check Blur Change Month
         }
     },
@@ -93,7 +72,6 @@ export default defineComponent({
 
     mounted() {
         console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Mounted")
-        
         this.initApp()
     },
     methods: {
@@ -101,81 +79,41 @@ export default defineComponent({
             Object.assign(this.$data, this.$options.data());
         },
         async clickControlMonth (type) {
-            console.clear()
-            console.log(">>>>>> Next ")
+            console.log(">>>>>> Click Control Month")
             const [mBlur, yBlur] = this.blurDate.split("-")
             
-            const isd =  [...this.selectDate, ...this._activeDateList]
+            const initSelectData =  [...this.selectDate, ...this.activeDateList]
             await this.reset()
-            // console.log({
-            //     mBlur:  this.getNextMonthYear(Number(mBlur) , Number(yBlur))[0],
-            //     yBlur:  this.getNextMonthYear(Number(mBlur) , Number(yBlur))[1],
-            //     isd
-            // })
 
             this.blurDate = `${mBlur}-${yBlur}`
-
-            let  monthControl, yearControl
-            if (type == "+") {
-                monthControl = this.getNextMonthYear(Number(mBlur) , Number(yBlur))[0];
-                yearControl = this.getNextMonthYear(Number(mBlur) , Number(yBlur))[1];
-            } else {
-                monthControl = this.getBeforeMonthYear(Number(mBlur) , Number(yBlur))[0];
-                yearControl = this.getBeforeMonthYear(Number(mBlur) , Number(yBlur))[1];
-            }
+            let  monthControl = (type == "+") ? this.getNextMonthYear(Number(mBlur) , Number(yBlur))[0] : this.getBeforeMonthYear(Number(mBlur) , Number(yBlur))[0];
+            let yearControl = (type == "+") ? this.getNextMonthYear(Number(mBlur) , Number(yBlur))[1] : this.getBeforeMonthYear(Number(mBlur) , Number(yBlur))[1];
+            
             const initData = {
                 date: 1,
                 month: monthControl,
                 year: yearControl,
-                initSelectData: isd
+                initSelectData: initSelectData
             }
             this.initApp(initData)
         },
         initApp (option) {
             var date, month, year;
-            if (option && option.month) {
-                this.selectDate = [...new Set(option.initSelectData)] 
+            const now = new Date()
+            
+            this.selectDate =  (option && option.month) ? [...new Set(option.initSelectData)] : [...this.selectDate, ...this.activeDateList];
+            date = (option && option.month) ? option.date : now.getDate();
+            month = (option && option.month) ? option.month : (now.getMonth() + 1);
+            year = (option && option.month) ? option.year : now.getFullYear();
 
-                date = option.date
-                month = option.month
-                year = option.year
-
-                this.date = date
-                this.month = month
-                this.year = year
-
-                this.dateNow = date
-                this.monthNow = month
-                this.yearNow = year
-                this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
-                this.blurMonth = this.getDateMonth(date, month, year, false)
-            } else {
-                if (this._activeDateList && this._activeDateList.length > 0) this.selectDate = [...this.selectDate, ...this._activeDateList]
-                const now = new Date()
-                this.year = now.getFullYear()
-                this.month = now.getMonth() + 1
-                this.date = now.getDate()
-
-                date = this.date
-                month = this.month
-                year = this.year
-
-                this.dateNow = date
-                this.monthNow = month
-                this.yearNow = year
-
-                this.dateMonthStrNow = this.getDateMonth(date, month, year, true)
-                this.blurMonth = this.getDateMonth(date, month, year, false)
-
-                if (this._date && this._month && this._year) {
-                    date = Number(this._date)
-                    month = Number(this._month)
-                    year = Number(this._year)
-                }
+            this.currentMonthName = this.getDateMonth(date, month, year, false)
+            if (this.date && this.month && this.year && !option) {
+                date = Number(this.date)
+                month = Number(this.month)
+                year = Number(this.year)
             }
 
-            this.blurDate = `${month}-${year}`
-            
+            this.blurDate = `${month}-${year}`;
             this.listDate = [{
                 day: date,
                 month: month,
@@ -190,7 +128,6 @@ export default defineComponent({
             firstDayOnMonth.setFullYear(year)
 
             const offDayHead = firstDayOnMonth.getDay() - 1
-
             const numDayThisMonth = this.numDaysInMonth(month, year)
 
             var timeOffHeadList = []
@@ -211,25 +148,21 @@ export default defineComponent({
             // Cal List Day Head
             const [monthHeadListBefore, yearHeadListBefore] = this.getBeforeMonthYear(month, year)
             timeOffHeadList = this.getListDayEndOfMonth(offDayHead, monthHeadListBefore, yearHeadListBefore )
-            // Set beforeDateState
             this.beforeDateState = timeOffHeadList[0]
-
-            // Cal List Day End
-            // const [monthNextListBefore, yearNextListBefore] = getNextMonthYear(month, year)
-
-            const numCellEndList = 42 - Number(timeMainList.length) - Number(timeOffHeadList.length) + 14 // 14 is 2 line add before for top scroll
+            
+            // Cal List Next Day
+            const numCellEndList = 4 * NUM_DATE_FETCH - Number(timeMainList.length) - Number(timeOffHeadList.length); // 42 + 14 = 4*NUM_DATE_FETCH
             timeNextList = this.getListDayStartOfMonth(numCellEndList, month, year)
-
-            // Set State nextDateState
             this.nextDateState = timeNextList.slice(-1)[0] 
+
             const fullDayListBox = [...timeOffHeadList , ...timeMainList, ...timeNextList]
 
             this.listDate = fullDayListBox;
-            const time = []; // Array bin 
+            const arrDate = [];
             for (let i = 1; i <= this.listDate.length; i++) {
                 const itemKeyBind = `${fullDayListBox[i-1]["day"]}-${fullDayListBox[i-1]["month"]}-${fullDayListBox[i-1]["year"]}`
                 const isActiveClass = this.selectDate.indexOf(itemKeyBind);
-                time.push({
+                arrDate.push({
                     day: fullDayListBox[i-1]["day"],
                     month: fullDayListBox[i-1]["month"],
                     year: fullDayListBox[i-1]["year"],
@@ -237,29 +170,26 @@ export default defineComponent({
                     activeMonthClass: this.calClassActiveMonth(fullDayListBox[i-1]["month"], fullDayListBox[i-1]["year"])
                 })
             }
-            this.listDate = time;
-
-            console.log("==========================================================================================")
+            this.listDate = arrDate;
             setTimeout(function() {
                 var div = document.getElementById("boxId");
                 div.scrollTop = 66
             }, 10)
         },
         setBlurDate (date, month, year) {
-            this.blurDate = `${month}-${year}`
-            this.blurMonth = this.getDateMonth(date, month, year, false)
-           
-            let str = `${month}-${year}`
-            if (!this.checkBlurChangeMonth) this.checkBlurChangeMonth = str
+            const monthYearStr = `${month}-${year}`;
+            this.blurDate = monthYearStr
+            this.currentMonthName = this.getDateMonth(date, month, year, false)
 
+            if (!this.checkBlurChangeMonth) this.checkBlurChangeMonth = monthYearStr
             if (this.checkBlurChangeMonth != this.blurDate) {
-                this.checkBlurChangeMonth = str;
+                this.checkBlurChangeMonth = monthYearStr;
                 const arrListDateByMonth = []
                 this.listDate.map((item) => {
                     const itemMonthCurrent =  this.checkBlurChangeMonth.split("-")[0]
                     arrListDateByMonth.push({
                         ...item,
-                        activeMonthClass : (str == this.blurDate && item.month == itemMonthCurrent ) ? "activeMonth" : "noActiveMonth"
+                        activeMonthClass : (monthYearStr == this.blurDate && item.month == itemMonthCurrent ) ? "activeMonth" : "noActiveMonth"
                     })
                 })
                 this.listDate = arrListDateByMonth
@@ -267,9 +197,9 @@ export default defineComponent({
         },
         handleScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
             const { day, month, year } = this.nextDateState;
-            const dayB = this.beforeDateState.day
-            const monthB = this.beforeDateState.month
-            const yearB = this.beforeDateState.year
+            const dayBefore = this.beforeDateState.day
+            const monthBefore = this.beforeDateState.month
+            const yearBefore = this.beforeDateState.year
 
             if (scrollTop + clientHeight >= scrollHeight) {
                 console.log(">>>>>>> Scroll Button")
@@ -280,10 +210,9 @@ export default defineComponent({
 
             if (scrollTop == 0) {
                 console.log(">>>>>>> Scroll Topppp..")
-                const beforeDayList = this.getBeforeDayWithAnyDay(dayB, monthB, yearB)
-                this.listDate = [ ...beforeDayList, ...this.listDate]
-
-                this.beforeDateState = beforeDayList[0]
+                const beforeDayList = this.getBeforeDayWithAnyDay(dayBefore, monthBefore, yearBefore);
+                this.listDate = [ ...beforeDayList, ...this.listDate];
+                this.beforeDateState = beforeDayList[0];
 
                 var div = document.getElementById("boxId");
                 div.scrollTop = 1;
@@ -296,26 +225,18 @@ export default defineComponent({
             const countDateExit = this.selectDate.indexOf(selectDateFormat);
 
             this.listDate.map(item => {
-                if (item && item.day && item.day == day && item.month == month && item.year == year) {
-                    if (item.active) {
-                        item.active = ""
-                    } else {
-                        item.active = "active"
-                    }
-                }
+                const isActive = (item && item.day && item.day == day && item.month == month && item.year == year) ? true : false;
+                if (isActive) item.active = (isActive && item.active) ? "" : "active";
             })
 
             if (countDateExit == -1) {
                  this.selectDate = [...new Set(this.selectDate), selectDateFormat]
             } else {
-                const a = this.selectDate
-                const r = []
-                a.map((item) => {
-                    if (item != selectDateFormat) {
-                        r.push(item)
-                    }
+                const arrSelectDate = []
+                this.selectDate.map((item) => {
+                    if (item != selectDateFormat) arrSelectDate.push(item)
                 })
-                this.selectDate = r
+                this.selectDate = arrSelectDate;
             }
         },
 
@@ -329,20 +250,18 @@ export default defineComponent({
 
         // Get Before Month Year
         getBeforeMonthYear (month, year) {
-            if (month == 1) return [12, year - 1]
-            return [(month -1), year]
+            return (month == 1) ? [12, year - 1] : [(month -1), year]
         },
         // Get Next Month Year
         getNextMonthYear (month, year) {
-            if (month == 12) return [1, year + 1]
-            return [(month +1), year]
+            return (month == 12) ? [1, year + 1] : [(month +1), year]
         },
 
         // Get List Day End Of Month From Num 
         getListDayEndOfMonth (num, month, year) {
             var list = []
             var numDaysInMonth = new Date(year, month, 0).getDate(); // numDaysInMonth(month, year)
-            var daySatrtCal = numDaysInMonth - num + 1 - 14 // xxxx //
+            var daySatrtCal = numDaysInMonth - num + 1 - 14;
 
             for (let i = daySatrtCal; i <= numDaysInMonth; i++) {
                 const itemMonth = this.getBeforeMonthYear((month + 1), year)[0];
@@ -376,8 +295,6 @@ export default defineComponent({
         },
 
         getNextDayWithAnyDay (day , month, year) {
-            let numDayNext = 14; // This is config default
-
             var timeInit = new Date()
             timeInit.setDate(day)
             timeInit.setMonth(month - 1)
@@ -387,7 +304,7 @@ export default defineComponent({
             const [nextMonth, nextYear] = this.getNextMonthYear(month, year)
 
             let nextTime = timeInit
-            nextTime.setDate(nextTime.getDate() + numDayNext);
+            nextTime.setDate(nextTime.getDate() + NUM_DATE_FETCH);
 
             const nextTimeDay = nextTime.getDate()
             const nextTimeMonth = nextTime.getMonth() + 1
@@ -395,7 +312,7 @@ export default defineComponent({
             
             const listNextDay = []
             if (nextTimeMonth == month && day != numDaysInMonth) {
-                for (let ii = (day + 1); ii <= (day + numDayNext); ii++) {
+                for (let ii = (day + 1); ii <= (day + NUM_DATE_FETCH); ii++) {
                     listNextDay.push({
                         day: ii,
                         month,
@@ -431,8 +348,6 @@ export default defineComponent({
         },
         
         getBeforeDayWithAnyDay (day, month, year) {
-            let numDayBefore = 14; // This is config default
-
             var timeInit = new Date()
             timeInit.setDate(day)
             timeInit.setMonth(month - 1)
@@ -444,14 +359,14 @@ export default defineComponent({
             const [beforeMonth, beforeYear] = this.getBeforeMonthYear(month, year)
 
             let beforeTime = timeInit
-            beforeTime.setDate(beforeTime.getDate() - numDayBefore);
+            beforeTime.setDate(beforeTime.getDate() - NUM_DATE_FETCH);
 
             const beforeTimeDay = beforeTime.getDate()
             const beforeTimeMonth = beforeTime.getMonth() + 1
             const beforeTimeYear = beforeTime.getFullYear()
             
             const listBeforeDay = []
-            if (beforeTimeMonth == month) { // && day != numDaysInMonth
+            if (beforeTimeMonth == month) {
                 for (let ii = beforeTimeDay; ii < day; ii++) {
                     listBeforeDay.push({
                         day: ii,
@@ -489,16 +404,15 @@ export default defineComponent({
 
         getDateMonth (date, month, year, getFull = true) {
             const dateName = this.getNameDate(this.getNumDayOnWeek(date, month, year))
-            const monthName = this.getNameMonth(date, month, year)
-            if (!getFull) return monthName
-            return `${dateName}, ${monthName} ${date}`
+            const monthName = this.getNameMonth(date, month, year);
+            return getFull ? `${dateName}, ${monthName} ${date}` : monthName;
         },
         getNumDayOnWeek (date, month, year) {
-            var _date = new Date()
-            _date.setDate(date)
-            _date.setMonth(month - 1)
-            _date.setFullYear(year)
-            return _date.getDay() - 1
+            var date = new Date()
+            date.setDate(date)
+            date.setMonth(month - 1)
+            date.setFullYear(year)
+            return date.getDay() - 1
         },
         getNameDate (dateOnWeek) {
             var d = new Date();
@@ -531,25 +445,21 @@ export default defineComponent({
         margin: auto;
         box-sizing: border-box;
     }
-
     .headInfo {
         width: 100%;
         height: 100px;
         background: #1867c0;
         padding: 10px;
     }
-
     .headInfoYear {
         color: #9abce3;
         display: block;
     }
-
     .headInfoMonthDay {
         color: #fff;
         display: block;
         font-size: 30px;
     }
-
     .calHeader {
         display: block;
         width: 100%;
@@ -565,7 +475,6 @@ export default defineComponent({
         text-align: center;
         margin: auto;
     }
-
     .itemHeader span {
         margin: auto;
         text-align: center;
@@ -576,19 +485,16 @@ export default defineComponent({
         color: #559eb8;
         font-weight: 700;
     }
-
     .item {
         width: 50px;
         height: 33px;
         float: left;
         /* display: block; */
     }
-
     .item span:hover {
         background: #f1ecec;
         cursor: pointer;
     }
-
     .item span {
         margin: auto;
         text-align: center;
@@ -603,10 +509,8 @@ export default defineComponent({
         border: 1px solid #d9dcde;
         color: #71aec4;
     }
-
     .box {
-        /* width: 280px;
-        height: 240px; */
+        /* width: 280px; height: 240px; */
         width: 350px;
         height: 198px;
         overflow-y: scroll;
@@ -616,32 +520,24 @@ export default defineComponent({
     .box::-webkit-scrollbar {
         display: none;
     }
-
     /* Hide scrollbar for IE, Edge and Firefox */
     .box {
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
     }
-    
     .noActiveMonth {
         color: #c5c9cc !important;
     }
-
     .active {
         background: #7586bd !important;
         color: #fff !important;
     }
-
-    /*  */
-    .controlHeader {}
-
     .controlHeaderText {
         display: block;
         float: left;
         width: 40%;
         height: 50px;
         line-height: 50px;
-        /* background: yellow; */
     }
     .controlHeaderText span {
         font-size: 17px;
@@ -649,18 +545,15 @@ export default defineComponent({
         color: #469fc1;
         padding-left: 2px;
     }
-
     .controlHeaderBtn {
         display: block;
         float: left;
         width: 60%;
         height: 50px;
         line-height: 50px;
-        /* background: pink; */
         text-align: right;
         padding-right: 4px;
     }
-
     .controlHeaderBtn span {
         font-size: 17px;
         font-weight: 700;
@@ -668,7 +561,6 @@ export default defineComponent({
         padding-left: 2px;
         text-align: right;
     }
-
     .controlHeaderBtn span:nth-child(2), .controlHeaderBtn span:nth-child(4) {
         cursor: pointer;
     }
