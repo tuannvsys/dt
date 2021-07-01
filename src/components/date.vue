@@ -180,23 +180,77 @@ export default defineComponent({
             }, 10)
         },
         setBlurDate (date, month, year) {
+            const top = this.$refs.boxRef.getBoundingClientRect().top;
+            const topElement = this.$refs[`${date}-${month}-${year}`].getBoundingClientRect().top;
+            const left = this.$refs.boxRef.getBoundingClientRect().left;
+            const leftElement = this.$refs[`${date}-${month}-${year}`].getBoundingClientRect().left;
+
+            const topCalculate = Math.round(((topElement - top) / 33) + 1);
+            const leftCalculate = Math.round((((leftElement - left) - 2.5) / 50 ) + 1);
+
             const monthYearStr = `${month}-${year}`;
             this.blurDate = monthYearStr
             this.currentMonthName = this.getDateMonth(date, month, year, false)
+            if (!this.checkBlurChangeMonth) this.checkBlurChangeMonth = monthYearStr;
 
-            if (!this.checkBlurChangeMonth) this.checkBlurChangeMonth = monthYearStr
-            if (this.checkBlurChangeMonth != this.blurDate) {
+            var state = ""
+
+            if (topCalculate == 1 || topCalculate == 2) {
+               const date12 = this.getNextDayWithAnyDay(date, month, year)
+               state = `${date12[13].month}-${date12[13].year}`;
+            }
+            if (topCalculate == 5 || topCalculate == 6) {
+               const date56 = this.getBeforeDayWithAnyDay(date, month, year)
+               state = `${date56[0].month}-${date56[0].year}`;
+            }
+            if (topCalculate == 3 || topCalculate == 4) state = `${month}-${year}`
+
+            if (this.checkBlurChangeMonth != state) {
                 this.checkBlurChangeMonth = monthYearStr;
                 const arrListDateByMonth = []
                 this.listDate.map((item) => {
                     const itemMonthCurrent =  this.checkBlurChangeMonth.split("-")[0]
                     arrListDateByMonth.push({
                         ...item,
-                        activeMonthClass : (monthYearStr == this.blurDate && item.month == itemMonthCurrent ) ? "activeMonth" : "noActiveMonth"
+                        activeMonthClass : (`${item.month}-${item.year}` == state) ? "activeMonth" : "noActiveMonth"
                     })
                 })
                 this.listDate = arrListDateByMonth
             }
+
+            
+            //  if (isBlur) { 
+            //     this.checkBlurChangeMonth = monthYearStr;
+
+            //     const arrListDateByMonth = []
+            //     this.listDate.map((item) => {
+            //         const itemMonthCurrent =  this.checkBlurChangeMonth.split("-")[0]
+            //         arrListDateByMonth.push({
+            //             ...item,
+            //             activeMonthClass : (monthYearStr == this.blurDate && item.month == itemMonthCurrent ) ? "activeMonth" : "noActiveMonth"
+            //         })
+            //     })
+            //     this.listDate = arrListDateByMonth
+            //  }
+
+            // const monthYearStr = `${month}-${year}`;
+            // this.blurDate = monthYearStr
+            // this.currentMonthName = this.getDateMonth(date, month, year, false)
+
+            // if (!this.checkBlurChangeMonth) this.checkBlurChangeMonth = monthYearStr
+
+            // if (this.checkBlurChangeMonth != this.blurDate) {
+            //     this.checkBlurChangeMonth = monthYearStr;
+            //     const arrListDateByMonth = []
+            //     this.listDate.map((item) => {
+            //         const itemMonthCurrent =  this.checkBlurChangeMonth.split("-")[0]
+            //         arrListDateByMonth.push({
+            //             ...item,
+            //             activeMonthClass : (monthYearStr == this.blurDate && item.month == itemMonthCurrent ) ? "activeMonth" : "noActiveMonth"
+            //         })
+            //     })
+            //     this.listDate = arrListDateByMonth
+            // }
         },
         handleScroll ({ target: { scrollTop, clientHeight, scrollHeight }}) {
             scrollTop = Math.ceil(scrollTop)
@@ -224,17 +278,6 @@ export default defineComponent({
         },
     
         clickDateAction (day, month, year) {
-            const top = this.$refs.boxRef.getBoundingClientRect().top
-            const topElement = this.$refs[`${day}-${month}-${year}`].getBoundingClientRect().top
-
-            const left = this.$refs.boxRef.getBoundingClientRect().left
-            const leftElement = this.$refs[`${day}-${month}-${year}`].getBoundingClientRect().left
-
-            console.log({
-                topCalculate:  Math.round(((topElement - top) / 33) + 1),
-                leftCalculate: Math.round((((leftElement - left) - 2.5) / 50 ) + 1)
-            })
-
             const selectDateFormat = `${day}-${month}-${year}`;
             if (!this.selectDate) this.selectDate = []
             const countDateExit = this.selectDate.indexOf(selectDateFormat);
