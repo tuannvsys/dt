@@ -34,11 +34,14 @@
                 @mouseover="setBlurDate(item.day, item.month, item.year)"
             >
                 <span 
+                    :ref="item.day + '-' + item.month + '-' + item.year"
                     v-bind:class="item.active + ' ' + item.activeMonthClass"
                     @click="clickDateAction(item.day, item.month, item.year)"
                 >
                     {{ item.day }}
                 </span>
+
+
             </div>
         </div>
     </div>
@@ -221,6 +224,17 @@ export default defineComponent({
         },
     
         clickDateAction (day, month, year) {
+            const top = this.$refs.boxRef.getBoundingClientRect().top
+            const topElement = this.$refs[`${day}-${month}-${year}`].getBoundingClientRect().top
+
+            const left = this.$refs.boxRef.getBoundingClientRect().left
+            const leftElement = this.$refs[`${day}-${month}-${year}`].getBoundingClientRect().left
+
+            console.log({
+                topCalculate:  Math.round(((topElement - top) / 33) + 1),
+                leftCalculate: Math.round((((leftElement - left) - 2.5) / 50 ) + 1)
+            })
+
             const selectDateFormat = `${day}-${month}-${year}`;
             if (!this.selectDate) this.selectDate = []
             const countDateExit = this.selectDate.indexOf(selectDateFormat);
