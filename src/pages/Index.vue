@@ -1,5 +1,14 @@
 <template>
-  <DateCustom date=30 month=6 year=2021 :activeDateList="listActiveDateInit" />
+   <h1> {{ title }} </h1>
+   <span> List seleect date: </span>
+    <span style="" v-for="item in listDate" :key="item" >
+         {{ item }} / 
+    </span>
+
+  <DateCustom
+    :title="title"
+    @dateSelect="setListDateSelect($event, 'dateSelect')"
+    date=30 month=6 year=2021 :activeDateList="listActiveDateInit" />
 </template>
 
 <script>
@@ -14,11 +23,14 @@ export default defineComponent({
   data() {
     return {
       listActiveDateInit: ["26-6-2021", "28-6-2021"],
+      listDate: []
     }
   },
 
   methods: {
-    changeData() {}
+    setListDateSelect(data, handle){
+      this.listDate = data
+    }
   }
 
 })

@@ -1,9 +1,9 @@
 <template>
     <h2 style="text-align: center;"> Date Custom</h2>
-    <span> List seleect date: </span>
+    <!-- <span> List seleect date: </span>
     <span style="" v-for="item in selectDate" :key="item" >
          {{ item }} / 
-    </span>
+    </span> -->
 
     <div class="main">
         <div class="controlHeader">
@@ -12,9 +12,9 @@
             </div>
             <div class="controlHeaderBtn">
                 <span> {{ currentMonthName }} </span>
-                <span @click="clickControlMonth('-')"> &lt;	 </span>
+                <button class="btnControl" @click="clickControlMonth('-')"> &lt; </button>
                 <span> {{ blurDate }} </span>
-                <span  @click="clickControlMonth('+')"> &gt; </span>
+                <button class="btnControl"  @click="clickControlMonth('+')"> &gt; </button>
             </div>
         </div>
         <div style="clear: both"></div>
@@ -53,7 +53,7 @@ const NUM_DATE_FETCH = 14
 
 export default defineComponent({
     name: 'DateCustom',
-    props: ["date", "month", "year", "activeDateList"],
+    props: ["date", "month", "year", "activeDateList", "title"],
     data() {
         return {
             listDate: [], // List Date For Render HTML
@@ -63,7 +63,8 @@ export default defineComponent({
 
             blurDate: "", // 6-2021
             currentMonthName: "", // July
-            checkBlurChangeMonth: "" // Bin Var Check Blur Change Month
+            checkBlurChangeMonth: "", // Bin Var Check Blur Change Month
+            titleData: 'init data title....'
         }
     },
     created () {
@@ -74,9 +75,10 @@ export default defineComponent({
     },
 
     mounted() {
-        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Mounted")
+        console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Mounted", this.inputData)
         this.initApp()
     },
+   
     methods: {
         reset () {
             Object.assign(this.$data, this.$options.data());
@@ -491,8 +493,15 @@ export default defineComponent({
             const monthBlur = this.blurDate;
             const monthYear = `${month}-${year}`;
             return (monthYear == monthBlur) ? "activeMonth" : "noActiveMonth"
+        }, 
+    },
+    watch: {
+        selectDate(data){
+            console.log(">>>>>> watch data >>>>>")
+            this.$emit('dateSelect', data)
         }
     }
+
 })
 </script>
 <style scoped>
@@ -620,6 +629,16 @@ export default defineComponent({
         text-align: right;
     }
     .controlHeaderBtn span:nth-child(2), .controlHeaderBtn span:nth-child(4) {
+        cursor: pointer;
+    }
+    .btnControl {
+        line-height: 50px;
+        outline: none;
+        border: none;
+        background: no-repeat;
+        font-size: 18px;
+        font-weight: 700;
+        color: #4c7c9f;
         cursor: pointer;
     }
 </style>
